@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Metoda - Подробно</title>
+    <link rel="stylesheet" href="/static/styles/order_style.css">
+</head>
+<body>
+<header>
+    <h1>
+        <a href="/hello"><img src="http://127.0.0.1:9000/imagegroup/image.png" alt="home"></a>
+    </h1>
+</header>
+
+<h3>Эталонные значения изотопных сигнатур</h3>
+
+<div class="card">
+    <div class="card-left">
+        <img src="{{ .order.ImageURL }}" alt="product">
+    </div>
+    <div class="card-right">
+        <h3>{{ .order.Title }}</h3>
+        <h3>δ¹³C: {{ .order.C }}</h3>
+        <h3>δ¹⁵N: {{ .order.N }}</h3>
+    </div>
+</div>
+
+</body>
+</html>
