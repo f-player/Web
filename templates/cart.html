@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Корзина</title>
+    <link rel="stylesheet" href="/static/styles/cart.css">
+</head>
+<body>
+<header>
+    <h1>
+        <a href="/hello"><img src="http://127.0.0.1:9000/imagegroup/image.png" alt="home"></a>
+    </h1>
+</header>
+
+<h2>Расчет примерного соотношения растительной и животной пищи в рационе индивида на основе изотопного анализа костных останков</h2>
+
+<h2>Всего групп продуктов: {{ .count }}</h2>   
+
+
+
+<div class="cards">
+    {{ range .cartorder }}
+    <div class="card">
+        <div class="card-left">
+            <img src="{{ .ImageURL }}" alt="product">
+        </div>
+        <div class="card-right">
+            <h3>
+                <span class="card-title">{{ .Title }}</span>
+                <span class="card-value">δ¹³C: {{ .C }}</span>
+                <span class="card-value">δ¹⁵N: {{ .N }}</span>
+                <div class="card-controls">
+                            <!-- <button class="delete-btn">
+                                Удалить
+                            </button> -->
+                            <div class="cable-length-container">
+                                <div class="cable-input-group">
+                                    <input type="number" id="cable-length" class="cable-input" placeholder="Введите кол-во" min="1">
+                                    <span class="cable-unit"></span>
+                                </div>
+                                <!-- <button class="calculate-btn">Рассчитать</button> -->
+                            </div>
+                </div>
+
+            </h3>
+        </div>
+    </div>
+    {{ end }}
+</div>
+</body>
+</html>
