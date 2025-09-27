@@ -1,0 +1,10 @@
+
+INSERT INTO "users" (id, username, password, moderator) VALUES (1, 'moderator', 'modpass', true);
+INSERT INTO "users" (id, username, password, moderator) VALUES (2, 'user', 'userpass', false);
+
+INSERT INTO products VALUES
+(1,  "Наземные травоядные (C3)",  "http://127.0.0.1:9000/imagegroup/i1.webp",  -20,  5),
+(2,  "C3-злаки",  "http://127.0.0.1:9000/imagegroup/i2.webp",  -24,  -5),
+(3,  "Морская рыба",  "http://127.0.0.1:9000/imagegroup/i3.webp",  -15,  5),
+(4,  "Пульсы / бобовые",  "http://127.0.0.1:9000/imagegroup/i5.jpg",  -30,  2),
+(5,  "Овощи",  "http://127.0.0.1:9000/imagegroup/i4.webp",  -28,  2);
