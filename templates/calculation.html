@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Составление заявки</title>
+    <link rel="stylesheet" href="/styles/calculation_style.css">
+</head>
+<body>
+<header>
+    <h1>
+        <a href="/group_product"><img src="http://127.0.0.1:9000/imagegroup/image.png" alt="home"></a>
+    </h1>
+</header>
+
+<h2>Составление заявки</h2>
+
+<h2>Всего групп продуктов: {{ .productsCount }}</h2>    
+
+<div class="container-forms">
+    <div class="form-card">
+        <p class="form-card-title">Введите данные индивида</p>
+        <form class="form">
+            <label>
+                <span>δ¹³C</span> 
+                <input type="text" name="c_value" value="{{ .calculation.C_pol }}" placeholder="Введите значение">
+                <span class="input-unit">%</span>
+            </label>
+            <label>
+                <span>δ¹⁵N</span> 
+                <input type="text" name="n_value" value="{{ .calculation.N_pol }}" placeholder="Введите значение">
+                <span class="input-unit">%</span>
+            </label>
+        </form>
+    </div>
+    <div class="form-card">
+        <p class="form-card-title">Результат</p>
+        <div class="result-form">
+            <label><span class="result-text">Процент растительной пищи</span></label>
+            <label><span class="result">{{ .calculation.PRP }}%</span></label>
+            <label><span class="result-text">Процент животной пищи</span></label>
+            <label><span class="result">{{ .calculation.PGP }}%</span></label>
+        </div>
+    </div>
+</div>
+
+<div class="cards">
+
+    {{ range .calculationproduct }}
+    <div class="card-row">
+        <div class="card">
+            <div class="card-left">
+                <img src="{{ .Product.Image }}" alt="product">
+            </div>
+            <div class="card-right">
+                <div class="card-content">
+                    <span class="card-title">{{ .Product.Title }}</span>
+                    <a href="/product/{{ .Product.ID }}" class="btn">Подробнее</a>
+
+                </div>
+            </div>
+        </div>
+        <div class="input-card">
+            <textarea placeholder="Введите текст"></textarea>
+        </div>
+    </div>
+    {{ end }}
+
+</div>
+
+<div class="frax-delete-button">
+    <form action="/calculation/{{ .calculation.ID }}/delete" method="POST">
+        <button class="btn-del" type="submit">Удалить заявку</button>
+    </form>
+</div>
+</body>
+</html>

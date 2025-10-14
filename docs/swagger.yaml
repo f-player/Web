@@ -1,0 +1,877 @@
+basePath: /api
+definitions:
+  ds.CartBadgeDTO:
+    properties:
+      count:
+        type: integer
+      diet_composition_id:
+        type: integer
+    type: object
+  ds.DietCompositionDTO:
+    properties:
+      PGP:
+        type: number
+      PRP:
+        type: number
+      c_pol:
+        type: integer
+      complition_date:
+        type: string
+      creation_date:
+        type: string
+      creator_login:
+        type: integer
+      forming_date:
+        type: string
+      id:
+        type: integer
+      moderator_login:
+        type: integer
+      n_pol:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/ds.ProductInDietCompositionDTO'
+        type: array
+      status:
+        type: integer
+    type: object
+  ds.DietCompositionResolveRequest:
+    properties:
+      action:
+        description: '"complete" | "reject"'
+        type: string
+    required:
+    - action
+    type: object
+  ds.DietCompositionUpdateRequest:
+    properties:
+      PGP:
+        type: number
+      PRP:
+        type: number
+      c_pol:
+        type: integer
+      n_pol:
+        type: integer
+    required:
+    - c_pol
+    - n_pol
+    type: object
+  ds.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/ds.UserDTO'
+    type: object
+  ds.PaginatedResponse:
+    properties:
+      items: {}
+      total:
+        type: integer
+    type: object
+  ds.ProductCreateRequest:
+    properties:
+      c_pol:
+        type: integer
+      n_pol:
+        type: integer
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  ds.ProductDTO:
+    properties:
+      c_pol:
+        type: integer
+      id:
+        type: integer
+      image:
+        type: string
+      n_pol:
+        type: integer
+      title:
+        type: string
+    type: object
+  ds.ProductInDietCompositionDTO:
+    properties:
+      c_pol:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      n_pol:
+        type: integer
+      product_id:
+        type: integer
+      ratio:
+        additionalProperties:
+          type: integer
+        type: object
+      title:
+        type: string
+    type: object
+  ds.ProductToDietCompositionUpdateRequest:
+    properties:
+      description:
+        type: string
+    type: object
+  ds.ProductUpdateRequest:
+    properties:
+      c_pol:
+        type: integer
+      n_pol:
+        type: integer
+      title:
+        type: string
+    type: object
+  ds.UserDTO:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: integer
+      moderator:
+        type: boolean
+      username:
+        type: string
+    type: object
+  ds.UserLoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  ds.UserRegisterRequest:
+    properties:
+      full_name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - full_name
+    - password
+    - username
+    type: object
+  ds.UserUpdateRequest:
+    properties:
+      full_name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8090
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: API-сервер для управления заявками и продуктами в системе DietComposition.
+  title: API для системы DietComposition
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Получение JWT токена по логину и паролю для доступа к защищенным
+        эндпоинтам.
+      parameters:
+      - description: Учетные данные пользователя
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/ds.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.LoginResponse'
+        "400":
+          description: Ошибка валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неверные учетные данные
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Аутентификация пользователя (все)
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Добавляет текущий JWT токен в черный список, делая его недействительным.
+        Требует авторизации.
+      responses:
+        "200":
+          description: Сообщение об успехе
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Выход из системы (авторизованный пользователь)
+      tags:
+      - auth
+  /diet_composition:
+    get:
+      description: Возвращает отфильтрованный список всех сформированных заявок (кроме
+        черновиков и удаленных).
+      parameters:
+      - description: Фильтр по статусу заявки
+        in: query
+        name: status
+        type: integer
+      - description: Фильтр по дате 'от' (формат YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: Фильтр по дате 'до' (формат YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ds.DietCompositionDTO'
+            type: array
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Получить список заявок (авторизованный пользователь)
+      tags:
+      - diet_composition
+  /diet_composition/{id}:
+    delete:
+      description: Логически удаляет заявку, переводя ее в статус "удалена".
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить заявку (авторизованный пользователь)
+      tags:
+      - diet_composition
+    get:
+      description: Возвращает полную информацию о заявке, включая привязанные продукты.
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.DietCompositionDTO'
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Заявка не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Получить одну заявку по ID (авторизованный пользователь)
+      tags:
+      - diet_composition
+    put:
+      consumes:
+      - application/json
+      description: Позволяет пользователю обновить поля своей заявки .
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: updateData
+        required: true
+        schema:
+          $ref: '#/definitions/ds.DietCompositionUpdateRequest'
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить данные заявки (авторизованный пользователь)
+      tags:
+      - diet_composition
+  /diet_composition/{id}/form:
+    put:
+      description: Переводит заявку из статуса "черновик" в "сформирована".
+      parameters:
+      - description: ID заявки (черновика)
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Не все поля заполнены
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Сформировать заявку (авторизованный пользователь)
+      tags:
+      - diet_composition
+  /diet_composition/{id}/products/{product_id}:
+    delete:
+      description: Удаляет связь между заявкой и продуктом.
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ID продукта
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить продукт из заявки (авторизованный пользователь)
+      tags:
+      - m-m
+    put:
+      consumes:
+      - application/json
+      description: Изменяет дополнительное описание для конкретного продукта в рамках
+        одной заявки.
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ID продукта
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      - description: Новое описание
+        in: body
+        name: updateData
+        required: true
+        schema:
+          $ref: '#/definitions/ds.ProductToDietCompositionUpdateRequest'
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить описание продукта в заявке (авторизованный пользователь)
+      tags:
+      - m-m
+  /diet_composition/{id}/resolve:
+    put:
+      consumes:
+      - application/json
+      description: Модератор завершает (с расчетом) или отклоняет заявку.
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'Действие: ''complete'' или ''reject'''
+        in: body
+        name: action
+        required: true
+        schema:
+          $ref: '#/definitions/ds.DietCompositionResolveRequest'
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Доступ запрещен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Завершить или отклонить заявку (только модератор)
+      tags:
+      - diet_composition
+  /diet_composition/cart:
+    get:
+      description: Возвращает ID черновика текущего пользователя и количество продуктов
+        в нем.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.CartBadgeDTO'
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Получить информацию для иконки корзины (авторизованный пользователь)
+      tags:
+      - diet_composition
+  /diet_composition/draft/products/{product_id}:
+    post:
+      description: Находит или создает черновик заявки для текущего пользователя и
+        добавляет в него продукт.
+      parameters:
+      - description: ID продукта для добавления
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Сообщение об успехе
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить продукт в черновик заявки (все)
+      tags:
+      - products
+  /products:
+    get:
+      description: Возвращает постраничный список продуктов.
+      parameters:
+      - description: Фильтр по названию продукта
+        in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.PaginatedResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить список продуктов (все)
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Создает новую запись о продукте.
+      parameters:
+      - description: Данные нового продукта
+        in: body
+        name: productData
+        required: true
+        schema:
+          $ref: '#/definitions/ds.ProductCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ds.ProductDTO'
+        "400":
+          description: Ошибка валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Доступ запрещен (не модератор)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Создать новый продукт (только модератор)
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      description: Удаляет продукт из системы.
+      parameters:
+      - description: ID продукта для удаления
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Доступ запрещен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить продукт (только модератор)
+      tags:
+      - products
+    get:
+      description: Возвращает детальную информацию о продукте.
+      parameters:
+      - description: ID продукта
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.ProductDTO'
+        "404":
+          description: Продукт не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить один продукт по ID (все)
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о существующем продукте.
+      parameters:
+      - description: ID продукта
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: updateData
+        required: true
+        schema:
+          $ref: '#/definitions/ds.ProductUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.ProductDTO'
+        "400":
+          description: Ошибка валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Доступ запрещен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить продукт (только модератор)
+      tags:
+      - products
+  /products/{id}/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загружает и привязывает изображение к продукту риска.
+      parameters:
+      - description: ID продукта
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Файл изображения
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: URL загруженного изображения
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Файл не предоставлен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Доступ запрещен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Загрузить изображение для продукта (только модератор)
+      tags:
+      - products
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя в системе. По умолчанию роль "пользователь",
+        не "модератор".
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/ds.UserRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ds.UserDTO'
+        "400":
+          description: Ошибка валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Регистрация нового пользователя (все)
+      tags:
+      - auth
+  /users/{id}:
+    get:
+      description: Возвращает публичные данные пользователя. Требует авторизации.
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.UserDTO'
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Пользователь не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Получение данных пользователя по ID (авторизованный пользователь)
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Обновляет имя пользователя или пароль. Требует авторизации.
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: updateData
+        required: true
+        schema:
+          $ref: '#/definitions/ds.UserUpdateRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Ошибка валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Необходима авторизация
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление данных пользователя (авторизованный пользователь)
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
